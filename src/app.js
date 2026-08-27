@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer'); 
+require('dotenv').config();
 
 
 const app = express();  
