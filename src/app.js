@@ -1,20 +1,27 @@
 const express = require('express');
-const multer = require('multer'); 
-require('dotenv').config();
+const multer = require('multer');
+const uploadFile = require('./services/storage.service');
+const Post = require('./model/post.model');
 
+const app = express();
+app.use(express.json());
 
-const app = express();  
-app.use(express.json()); 
+const upload = multer({ storage: multer.memoryStorage() });
 
-const upload = multer({storage: multer.memoryStorage()}) // because the now data coming from backend is in form-data format.
-
-
-app.post('/create-post' , upload.single("image") ,async (req,res)=> {
-    
-    
+app.post('/create-post', upload.single('image'), async (req, res) => {
     console.log(req.body);
     console.log(req.file);
-})
+    const result = await uploadFile(req.file.buffer);
 
-// buffer data joh hume mila h vhi hum imagekit par upload karenge. 
+    const createdPost = await Post.create({
+        image: result.url,
+        caption: req.body.caption
+    });
+    
+    return res.status(201).json({
+        message: 'Post created successfully',
+        post: createdPost
+    });
+});
+
 module.exports = app;
